@@ -1,0 +1,30 @@
+/* The picture pages (anything that loads stage.js). Same palette and type as cards.css;
+   everything is one 1920x1080 SVG driven by stage.js. No colour, no icons, no CSS animation (the exporter
+   runs a virtual clock, so every change is computed from time in JS). */
+.wrap svg{display:block;width:1920px;height:1080px}
+svg text{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:26px;font-weight:400;fill:var(--dim)}
+svg text.h{font-size:56px;font-weight:600;fill:var(--white);letter-spacing:-.005em}
+svg text.k{font-size:30px;font-weight:600;fill:var(--white)}
+svg text.k2{font-size:26px;font-weight:600;fill:var(--white)}
+svg text.w{fill:var(--ink)}
+svg text.s{font-size:22px}
+svg text.q{font-size:28px;fill:var(--white);font-weight:500}
+svg text.foot{font-size:30px;fill:var(--ink);font-weight:500}
+svg text.claim{font-size:44px;fill:var(--white);font-weight:600}
+svg text.hi{fill:var(--white)}
+svg text.k.lo{fill:var(--dim)}
+svg text.k.lo.hi{fill:var(--white)}
+svg .rule{stroke:var(--line);stroke-width:2}
+svg .box{fill:var(--panel);stroke:var(--line);stroke-width:2}
+svg .box.in{fill:var(--panel2);stroke:var(--edge);stroke-width:1.5}
+svg .box.hi{stroke:var(--white)}
+svg .box.ours{fill:#000;stroke:var(--white);stroke-width:2.5}
+svg .card{fill:var(--panel);stroke:var(--edge);stroke-width:1.5}
+svg .card.hi{stroke:var(--white)}
+svg .btn{fill:var(--panel2);stroke:var(--white);stroke-width:2}
+svg .field{fill:var(--panel2);stroke:var(--edge);stroke-width:1}
+svg .wire path{stroke:var(--line);stroke-width:3;fill:none}
+svg .wire polygon{fill:var(--line)}
+svg .wire.hi path{stroke:var(--ink)}
+svg .wire.hi polygon{fill:var(--ink)}
+svg .cursor{fill:var(--white)}

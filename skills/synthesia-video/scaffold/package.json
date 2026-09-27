@@ -1,0 +1,9 @@
+{
+  "name": "synthesia-video-project",
+  "private": true,
+  "description": "Synthesia video built from a scene table; see tools/build.py",
+  "type": "module",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

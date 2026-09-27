@@ -1,0 +1,23 @@
+{
+  "_comment": "A worked house file (BASIS International, makers of BBj and webforJ). Copy to ~/.claude/synthesia-house.json, or ./house.json in a project, and make it yours.",
+  "subs": [
+    ["BBjServices", "B B J Services"],
+    ["webforJ", "webfor Jay"],
+    ["WebUI", "WebYouI", "wɛb juː aɪ"],
+    ["WebCUI", "Web C U I"],
+    ["BBj", "B B J"],
+    ["CUI", "C U I"],
+    ["BUI", "B U I"],
+    ["DWC", "D W C"],
+    ["GUI", "gooey"]
+  ],
+  "cast": {
+    "host": { "avatar": "c43d0b11-61e9-483c-a0f7-26a7bfcb6510", "voice": "13173f72-713d-49b9-a511-2b1f575a5a5d" }
+  },
+  "rules": [
+    "webforJ is one word, then 'Jay': never 'web for J'.",
+    "WebUI is never called 'Webswing'.",
+    "No 'game changer'.",
+    "Unreleased features are 'on the roadmap', never promised with a date."
+  ]
+}

@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>R3 — One build, four steps</title><link rel="stylesheet" href="cards.css"><link rel="stylesheet" href="stage.css"></head>
+<body><div class="wrap"><svg id="stage" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="stage.js"></script>
+<script>// R3: animated, one beat per spoken step. The four boxes stand dim from the cold frame; each beat lights
+// one and draws the wire into it. The beat times below are placeholders: build.py passes ?beats= (its estimate,
+// then the times measured from the clip's frozen voice), so this list only sets the order.
+const T_END = 20;
+title('One build, four steps');
+const steps = [
+  ['table',  'scene table',  'every clip, every word', 'tools/build.py'],
+  ['export', 'export',       'pages to pictures',      'on a virtual clock'],
+  ['upload', 'upload',       'only what changed',      'cached by hash'],
+  ['render', 'render',       'a test video',           'free, watermarked'],
+];
+const X = 96, Y = 380, BW = 372, GAP = 80, BH = 260;
+steps.forEach(([id, k, a, b], i) => {
+  const x = X + i * (BW + GAP);
+  S.rect(id, x, Y, BW, BH, 'box', true);
+  S.text(id + '-k', x + 28, Y + 70, k, 'k lo', true);
+  S.text(id + '-a', x + 28, Y + 136, a, '', true);
+  S.text(id + '-b', x + 28, Y + 176, b, 's', true);
+  if (i) S.wire('w-' + id, `M${x - GAP + 6} ${Y + BH / 2} H${x - 6}`);
+});
+S.text('foot', 96, 1000, '', 'foot');
+beats([
+  {at: 0.8,  do: [['hik','table'], ['hik','table-k'], ['hi','table-a']]},
+  {at: 6.0,  do: [['wire','w-export'], ['hik','export'], ['hik','export-k'], ['hi','export-a']]},
+  {at: 11.0, do: [['wire','w-upload'], ['hik','upload'], ['hik','upload-k'], ['hi','upload-a']]},
+  {at: 15.0, do: [['wire','w-render'], ['hik','render'], ['hik','render-k'], ['hi','render-a'], ['text','foot','Every render is titled with its take number and time.']]},
+]);
+play();
+</script></body></html>

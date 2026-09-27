@@ -1,0 +1,10 @@
+{
+  "name": "synthesia-video",
+  "version": "1.0.0",
+  "description": "Build Synthesia avatar videos as a build: a scene table, HTML graphics, free test renders, animations synced to the measured voice, a second presenter, and a real person's voice when the render is only an animatic.",
+  "author": { "name": "Stephan Wald", "url": "https://github.com/StephanWald" },
+  "license": "MIT",
+  "repository": "https://github.com/StephanWald/synthesia-video",
+  "homepage": "https://github.com/StephanWald/synthesia-video",
+  "keywords": ["synthesia", "video", "avatar", "text-to-speech", "ffmpeg", "playwright"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "stephanwald",
+  "owner": {
+    "name": "Stephan Wald",
+    "url": "https://github.com/StephanWald"
+  },
+  "description": "Claude Code plugins by Stephan Wald: video production with the Synthesia API.",
+  "plugins": [
+    {
+      "name": "synthesia-video",
+      "source": "./",
+      "description": "Build Synthesia avatar videos from a scene table with the Synthesia API."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>R4 — Picture follows voice</title><link rel="stylesheet" href="cards.css"><link rel="stylesheet" href="stage.css"></head>
+<body><div class="wrap"><svg id="stage" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<script src="stage.js"></script>
+<script>// R4: a still on the animation stylesheet. Every element is base and there is no beats() call, so the
+// cold frame is the card; build.py exports it as one PNG (kind "image").
+title('Picture follows voice');
+const steps = [
+  ['render', 'render a take',   'the voice, as read once'],
+  ['cut',    'cut the voice',   'sync.py voice'],
+  ['beats',  'measure pauses',  'sync.py beats'],
+  ['export', 'export on them',  'build.py export'],
+  ['mux',    'join the two',    'build.py mux'],
+];
+const X = 96, Y = 400, BW = 300, GAP = 57, BH = 200;
+steps.forEach(([id, k, a], i) => {
+  const x = X + i * (BW + GAP);
+  S.rect(id, x, Y, BW, BH, i === steps.length - 1 ? 'box ours' : 'box', true);
+  S.text(id + '-k', x + 24, Y + 70, k, 'k', true);
+  S.text(id + '-a', x + 24, Y + 126, a, 's', true);
+  if (i) S.wire('w-' + id, `M${x - GAP + 6} ${Y + BH / 2} H${x - 6}`, true);
+});
+S.text('claim', 96, 780, 'The same script, rendered twice, moved its pauses by up to six seconds.', 'claim', true);
+S.text('foot', 96, 1000, 'So the voice is frozen once, and the sync is made locally: exact, no watermark.', 'foot', true);
+play();
+</script></body></html>
