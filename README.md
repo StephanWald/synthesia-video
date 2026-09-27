@@ -144,8 +144,14 @@ examples/             a worked house file (the reference film's code is scaffold
 
 - Test renders are free and watermarked (the docs cap them at 30 a day). A **final render spends your video
   minutes**; the skill only does one when you explicitly ask.
-- Your API key stays in `.env`, which the scaffold's `.gitignore` excludes. The skill never prints it.
+- Your API key stays in `.env`, which the scaffold's `.gitignore` excludes. The skill never prints it, and the
+  client hands it to `curl` on stdin, so it never appears on a command line or in a process list.
 - Test videos are private. The skill never deletes videos unless you ask.
+- **What it runs:** Claude runs the project's own scripts (`python3 tools/…`, `node`, `ffmpeg`, `curl`) in the
+  project folder, and deletes nothing outside its `out/` folder. There is no telemetry and no other server.
+- **What it contacts:** `api.synthesia.io` and `upload.api.synthesia.io` (renders and uploads, with your key),
+  the download link Synthesia returns for a finished video, `fonts.googleapis.com` (the cards' font, at
+  export), and the npm registry when you run `npm install`.
 
 ## Disclaimer
 

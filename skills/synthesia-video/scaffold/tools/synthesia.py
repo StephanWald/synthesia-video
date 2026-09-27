@@ -20,8 +20,9 @@ TYPES = {".mp4": "video/mp4", ".webm": "video/webm", ".png": "image/png", ".jpg"
 
 def key():
     k = os.environ.get("SYNTHESIA_API_KEY")
-    if not k:
-        for line in open(os.path.join(ROOT, ".env")):
+    env = os.path.join(ROOT, ".env")
+    if not k and os.path.exists(env):
+        for line in open(env):
             if line.strip().startswith("SYNTHESIA_API_KEY="):
                 k = line.strip().split("=", 1)[1].strip().strip('"').strip("'")
     if not k:
@@ -30,13 +31,15 @@ def key():
 
 
 def curl(url, method="GET", data=None, file=None, ctype="application/json"):
-    cmd = ["curl", "-s", "-X", method, "-w", "\n%{http_code}", "-H", "Authorization: " + key(),
+    # the key goes to curl as a config on stdin, never on the command line, where `ps` would show it
+    auth = 'header = "Authorization: %s"\n' % key().replace("\\", "\\\\").replace('"', '\\"')
+    cmd = ["curl", "-s", "-K", "-", "-X", method, "-w", "\n%{http_code}",
            "-H", "Content-Type: " + ctype, url]
     if data is not None:
         cmd += ["--data", json.dumps(data)]
     if file is not None:
         cmd += ["--data-binary", "@" + file]
-    out = subprocess.run(cmd, capture_output=True, text=True, timeout=600).stdout
+    out = subprocess.run(cmd, input=auth, capture_output=True, text=True, timeout=600).stdout
     body, _, code = out.rpartition("\n")
     try:
         return int(code), json.loads(body or "{}")
