@@ -1,6 +1,6 @@
 # synthesia-video
 
-A Claude Code plugin that makes Synthesia avatar videos **as a build**, not by hand: a scene table in
+A Claude Code and Codex plugin that makes Synthesia avatar videos **as a build**, not by hand: a scene table in
 Python is the source of truth, graphics are HTML pages exported frame by frame, assets are uploaded once,
 and every render is a free, watermarked test until you say otherwise.
 
@@ -19,7 +19,7 @@ film (its source is in [Try the reference film](#try-the-reference-film)), built
 
 ## What it does
 
-Ask Claude for a Synthesia video and the skill:
+Ask Claude or Codex for a Synthesia video and the skill:
 
 - **scaffolds a working project**: the scaffold *is* a seven-clip reference film, each clip demonstrating
   one lesson and saying which, so the first render proves your setup end to end;
@@ -36,21 +36,38 @@ Ask Claude for a Synthesia video and the skill:
 
 ## Install
 
-In Claude Code:
+The repository is a plugin marketplace for both Claude Code and Codex.
 
-```
-/plugin marketplace add StephanWald/synthesia-video
-/plugin install synthesia-video@stephanwald
-```
-
-or from a terminal:
+### Claude Code
 
 ```
 claude plugin marketplace add StephanWald/synthesia-video
 claude plugin install synthesia-video@stephanwald
 ```
 
-Then start a session in an empty folder and ask for a video ("make a 90-second Synthesia explainer about …").
+Inside a session, the same works as `/plugin marketplace add …` and `/plugin install …`. To update:
+
+```
+claude plugin marketplace update stephanwald
+claude plugin update synthesia-video@stephanwald
+```
+
+### Codex
+
+```
+codex plugin marketplace add StephanWald/synthesia-video
+codex plugin add synthesia-video@stephanwald
+```
+
+To update:
+
+```
+codex plugin marketplace upgrade stephanwald
+codex plugin add synthesia-video@stephanwald
+```
+
+Then start a new session in an empty folder and ask for a video ("make a 90-second Synthesia explainer
+about …").
 
 ### Requirements
 
@@ -84,12 +101,12 @@ python3 tools/build.py export && python3 tools/build.py mux && python3 tools/bui
                                  # -> out/assembled.mp4, the animation synced to the voice
 ```
 
-Or just ask Claude to "render the synthesia-video reference film" in an empty folder.
+Or just ask Claude or Codex to "render the synthesia-video reference film" in an empty folder.
 
 ## Make it yours: pronunciations, presenters, house rules
 
 The easiest way is to just say it: *"always pronounce kubectl as cube control"*, *"our host is Carly with
-the Zola voice"*, *"never say game changer"*. Claude offers to save it where it belongs.
+the Zola voice"*, *"never say game changer"*. The agent offers to save it where it belongs.
 
 There are two levels:
 
@@ -119,7 +136,7 @@ then `~/.claude/synthesia-house.json`. Share one across a team by committing it 
   `who="expert"`. IDs come from Studio (the avatar's ⋯ menu → Copy ID) or Synthesia's
   [avatar](https://docs.synthesia.io/reference/avatars) and [voice](https://docs.synthesia.io/reference/voices)
   tables. Some IDs in those tables are refused by the API, so confirm a new one with a short test render.
-- **`rules`**: plain sentences Claude reads before writing any script (words to avoid, how to name products).
+- **`rules`**: plain sentences the agent reads before writing any script (words to avoid, how to name products).
 
 A fuller example is in [`examples/software-company-house.json`](examples/software-company-house.json).
 Check any new pronunciation by ear: render a short test and listen; the API cannot report how a word sounded.
@@ -128,7 +145,7 @@ Check any new pronunciation by ear: render a short test and listen; the API cann
 
 ```
 skills/synthesia-video/
-  SKILL.md            what Claude knows: the workflow, the API's shape, every gotcha found so far
+  SKILL.md            what the agent knows: the workflow, the API's shape, every gotcha found so far
   reference/          api.md (endpoints, limits, what the API cannot do), verifying.md (ffmpeg recipes)
   scaffold/           the reference film = the project template
     tools/build.py      scene table, cast, pronunciations; words, script, export, upload, render, mux, assemble
@@ -147,7 +164,7 @@ examples/             a worked house file (the reference film's code is scaffold
 - Your API key stays in `.env`, which the scaffold's `.gitignore` excludes. The skill never prints it, and the
   client hands it to `curl` on stdin, so it never appears on a command line or in a process list.
 - Test videos are private. The skill never deletes videos unless you ask.
-- **What it runs:** Claude runs the project's own scripts (`python3 tools/…`, `node`, `ffmpeg`, `curl`) in the
+- **What it runs:** the agent runs the project's own scripts (`python3 tools/…`, `node`, `ffmpeg`, `curl`) in the
   project folder, and deletes nothing outside its `out/` folder. There is no telemetry and no other server.
 - **What it contacts:** `api.synthesia.io` and `upload.api.synthesia.io` (renders and uploads, with your key),
   the download link Synthesia returns for a finished video, `fonts.googleapis.com` (the cards' font, at
@@ -163,7 +180,7 @@ arising from the use of this plugin, including costs charged by third parties. T
 - **Not affiliated with Synthesia.** "Synthesia" is a trademark of its owner and is used here only to say
   which service the plugin works with. Synthesia's API, limits and behaviour can change at any time and may
   break what is described here.
-- **AI makes mistakes.** The plugin gives instructions to an AI model (Claude), which writes scripts, runs
+- **AI makes mistakes.** The plugin gives instructions to an AI agent (Claude Code or Codex), which writes scripts, runs
   commands and calls the Synthesia API on your behalf. It can misread a request, get a pronunciation, a fact or
   a setting wrong, or run a command you did not intend. Review what it proposes, especially before anything
   that spends money, publishes or deletes.

@@ -104,7 +104,8 @@ this skill. They live in a JSON file outside the plugin, which an update never t
    the first bad ID, so a request with several unknown IDs fails once per ID. Personal avatars and voice clones
    are IDs too, but EXPRESS-2 avatars were refused by the API: render with a stock avatar and let the user swap
    theirs in Studio on the draft the render creates.
-4. Write the project's `CLAUDE.md`: the build commands and every project-specific decision.
+4. Write the project's agent file, `CLAUDE.md` for Claude Code or `AGENTS.md` for Codex: the build commands and
+   every project-specific decision.
 
 ## Working loop
 

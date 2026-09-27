@@ -4,7 +4,7 @@
     "name": "Stephan Wald",
     "url": "https://github.com/StephanWald"
   },
-  "description": "Claude Code plugins by Stephan Wald: video production with the Synthesia API.",
+  "description": "Claude Code and Codex plugins by Stephan Wald: video production with the Synthesia API.",
   "plugins": [
     {
       "name": "synthesia-video",
