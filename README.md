@@ -57,6 +57,30 @@ Then start a session in an empty folder and ask for a video ("make a 90-second S
 - Network at export time (the cards load a Google Font).
 - Optional: `pdftoppm` for slide decks, Whisper (e.g. `mlx-whisper`) to recover edits made in Studio.
 
+## Try the reference film
+
+The complete source of a working film ships with the plugin:
+[`skills/synthesia-video/scaffold/`](skills/synthesia-video/scaffold/). It is a ~2-minute film in seven clips,
+each showing one technique and saying which: a presenter on black, a pronunciation table, an animation synced
+to the voice, a still diagram, a host handing off to an expert, and a silent end card. The same folder is the
+template every new project starts from, and its plan and render log are in
+[`SCENEPLAN.md`](skills/synthesia-video/scaffold/SCENEPLAN.md).
+
+To render it yourself (one free test render):
+
+```
+cp -R skills/synthesia-video/scaffold my-first-film && cd my-first-film
+echo "SYNTHESIA_API_KEY=<your key>" > .env
+npm install                      # Playwright, for the frame exporter
+python3 tools/build.py all       # export cards and the animation, upload, write the request
+python3 tools/build.py render    # free, watermarked test render -> out/film.mp4
+python3 tools/sync.py cuts && python3 tools/sync.py voice && python3 tools/sync.py beats
+python3 tools/build.py export && python3 tools/build.py mux && python3 tools/build.py assemble
+                                 # -> out/assembled.mp4, the animation synced to the voice
+```
+
+Or just ask Claude to "render the synthesia-video reference film" in an empty folder.
+
 ## Make it yours: pronunciations, presenters, house rules
 
 The easiest way is to just say it: *"always pronounce kubectl as cube control"*, *"our host is Carly with
@@ -108,7 +132,7 @@ skills/synthesia-video/
     tools/export-frames.mjs  deterministic frame export (virtual clock, Playwright)
     cards.css, stage.css, stage.js, r*.html   the look: off-white on black, one SVG stage for animations
     SCENEPLAN.md, CLAUDE.md                   the plan and notes of the reference film
-examples/             a worked house file
+examples/             a worked house file (the reference film's code is scaffold/, above)
 ```
 
 ## Costs and safety
