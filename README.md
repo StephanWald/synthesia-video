@@ -8,8 +8,9 @@ It grew out of a set of real conference films and carries what they taught: how 
 voice the API will not let you time, how to hand off between two presenters, how to recover wording a
 colleague changed in Studio, and a few dozen smaller gotchas of the Synthesia API.
 
-> Not affiliated with or endorsed by Synthesia. You need your own Synthesia account with API access
-> (Creator plan or above).
+> **Independent project, provided as is.** Not affiliated with, endorsed by or supported by Synthesia.
+> It runs AI-generated actions against a paid third-party API on your account, so read the
+> [disclaimer](#disclaimer) before use. You need your own Synthesia account with API access (Creator plan or above).
 
 ## What it does
 
@@ -116,6 +117,31 @@ examples/             a worked house file
   minutes**; the skill only does one when you explicitly ask.
 - Your API key stays in `.env`, which the scaffold's `.gitignore` excludes. The skill never prints it.
 - Test videos are private. The skill never deletes videos unless you ask.
+
+## Disclaimer
+
+**Provided "as is", without warranty of any kind**, express or implied, including fitness for a particular
+purpose. In no event shall the author or contributors be liable for any claim, damages or other liability
+arising from the use of this plugin, including costs charged by third parties. The full terms are in the
+[MIT license](LICENSE).
+
+- **Not affiliated with Synthesia.** "Synthesia" is a trademark of its owner and is used here only to say
+  which service the plugin works with. Synthesia's API, limits and behaviour can change at any time and may
+  break what is described here.
+- **AI makes mistakes.** The plugin gives instructions to an AI model (Claude), which writes scripts, runs
+  commands and calls the Synthesia API on your behalf. It can misread a request, get a pronunciation, a fact or
+  a setting wrong, or run a command you did not intend. Review what it proposes, especially before anything
+  that spends money, publishes or deletes.
+- **Third-party costs are your responsibility.** Calls to the Synthesia API run on your account, under your
+  plan and Synthesia's terms. The plugin is written to use free test renders unless you explicitly ask for a
+  final one, but a misconfiguration, a changed default, a mistake by the model or a request you approve can
+  still consume video minutes or credits and lead to charges from Synthesia (or any other service you connect).
+  Watch your usage and billing.
+- **Your content, your responsibility.** You are responsible for what your videos say and show, for the
+  rights to any material you use, for consent where a real person's likeness or voice is involved, and for
+  following Synthesia's terms of use.
+- **Keep your API key safe.** It belongs in the project's `.env` (git-ignored). Never commit it or paste it
+  into a chat.
 
 ## License
 
