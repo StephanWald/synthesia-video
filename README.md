@@ -8,6 +8,11 @@ It grew out of a set of real conference films and carries what they taught: how 
 voice the API will not let you time, how to hand off between two presenters, how to recover wording a
 colleague changed in Studio, and a few dozen smaller gotchas of the Synthesia API.
 
+[![Watch the 2-minute intro: the reference film, made with this plugin](docs/intro-video.jpg)](https://share.synthesia.io/dbdc200a-4746-4c32-8656-f0594036400d)
+
+**▶ [Watch the 2-minute intro](https://share.synthesia.io/dbdc200a-4746-4c32-8656-f0594036400d)**: the reference
+film (its source is in [Try the reference film](#try-the-reference-film)), built and synced with this plugin.
+
 > **Independent project, provided as is.** Not affiliated with, endorsed by or supported by Synthesia.
 > It runs AI-generated actions against a paid third-party API on your account, so read the
 > [disclaimer](#disclaimer) before use. You need your own Synthesia account with API access (Creator plan or above).
