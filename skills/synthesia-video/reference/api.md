@@ -74,14 +74,23 @@ frame); `longBackgroundContentMatchMode` when the picture is longer (extend_cont
   a second avatar in the same frame needs Studio or a template.
 - The avatar has no X/Y: `avatarSettings.position` is a 400 `Unknown field`. Placement is `horizontalAlign` +
   `scale` only, so exact corner placement is not possible through the API.
-- **Outside 16:9, `left` and `right` misplace the avatar** (reported Sep 2026, 4:5): at scale 0.36, `right` put
-  Carly at x ≈ 1076 of a 1080-wide frame, width 374, almost entirely off-screen; `left` was off-screen the other
-  way; `center` worked. Use `center` in other aspect ratios, or place the presenter in Studio.
+- **4:5 is laid out on a 16:9 canvas (a Synthesia bug, verified 27 Sep 2026, reported with request id
+  `87678c0f-…`).** The scene is placed on 1920×1080, and that canvas sits in the 1080×1350 frame centred and
+  bottom-aligned, offset x −420, y +270, then cropped. So in 4:5:
+  - `center` is correct; `left` and `right` at scale 0.36 put the avatar entirely off-screen, `right` 0.6 shows
+    a sliver, `right` 1.0 about half the figure. No API setting reaches a corner.
+  - A 1080×1350 background at the default position is shifted by −420, +270 (edges cut, the gap filled with a
+    blurred extension). **Workaround, verified:** `backgroundSettings: {"position": {"x": 420, "y": -270}}`
+    puts it exactly at 0,0. Keep it only while the bug lasts; check the first test render of every 4:5 film.
+  - A presenter in a corner of a 4:5 frame: move the avatar in Studio on the draft the API creates, or build a
+    4:5 template in Studio with the avatar placed and render it with `POST /v2/videos/fromTemplate`. Both stay
+    native Synthesia renders.
+  - 9:16, 1:1 and 5:4 are untested; expect the same and check the first render.
 - A `voiceOnly` clip stays voice-only: Studio shows an avatar box, but moving it does not make the presenter
   appear. If a clip may need the face, render it `rectangular` from the start.
-- **4:5 background offset, one observation, to confirm:** a 1080×1350 uploaded card at `backgroundSettings.position`
-  0,0 appeared in Studio at X −420, Y 270; position X 420, Y −270 put it at X 0, Y 0, 1080×1350. One take in that
-  session had been resized in Studio, so check on an untouched API take before relying on the correction.
+- **Bug reports need the request id.** Error responses carry `Request-Id`; successful ones only the gateway's
+  `x-amzn-requestid`. `tools/synthesia.py` reads either, prints it with every error, and prints it on stderr
+  for `create`. Report the endpoint, payload, status and body, the request id, and expected vs actual.
 
 ## Limits not documented
 

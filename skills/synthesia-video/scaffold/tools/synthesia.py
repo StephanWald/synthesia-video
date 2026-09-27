@@ -33,22 +33,31 @@ def key():
 def curl(url, method="GET", data=None, file=None, ctype="application/json"):
     # the key goes to curl as a config on stdin, never on the command line, where `ps` would show it
     auth = 'header = "Authorization: %s"\n' % key().replace("\\", "\\\\").replace('"', '\\"')
-    cmd = ["curl", "-s", "-K", "-", "-X", method, "-w", "\n%{http_code}",
+    # The request id traces the call in Synthesia's logs: quote it in any bug report (curl >= 7.84). Errors carry
+    # Request-Id; a successful call only the gateway's x-amzn-requestid.
+    cmd = ["curl", "-s", "-K", "-", "-X", method, "-w",
+           "\n%{http_code} %header{request-id} %header{x-amzn-requestid}",
            "-H", "Content-Type: " + ctype, url]
     if data is not None:
         cmd += ["--data", json.dumps(data)]
     if file is not None:
         cmd += ["--data-binary", "@" + file]
     out = subprocess.run(cmd, input=auth, capture_output=True, text=True, timeout=600).stdout
-    body, _, code = out.rpartition("\n")
+    body, _, tail = out.rpartition("\n")
+    code, _, rid = tail.partition(" ")
+    global REQUEST_ID
+    REQUEST_ID = next((r for r in rid.split() if "%" not in r), "")
     try:
         return int(code), json.loads(body or "{}")
     except json.JSONDecodeError:
         return int(code), {"raw": body[:1000]}
 
 
+REQUEST_ID = ""
+
+
 def fail(code, body):
-    sys.exit(f"HTTP {code}: {json.dumps(body)[:800]}")
+    sys.exit(f"HTTP {code} (request-id {REQUEST_ID or '?'}): {json.dumps(body)[:800]}")
 
 
 def main(argv):
@@ -68,6 +77,7 @@ def main(argv):
         code, d = curl(API + "/v2/videos", "POST", data=req)
         if code != 201:
             fail(code, d)
+        print("request-id", REQUEST_ID or "?", file=sys.stderr)   # stdout stays the bare video id
         print(d["id"])
     elif cmd == "status":
         code, d = curl(API + f"/v2/videos/{argv[2]}")

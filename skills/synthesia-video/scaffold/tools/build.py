@@ -282,7 +282,9 @@ def render(final=False):
     print("title:", req["title"])
     tmp = os.path.join(OUT, "request.submit.json")
     json.dump(req, open(tmp, "w"), ensure_ascii=False)
-    vid = run(["python3", SYN, "create", tmp])
+    # stderr passes through: the request id, and on a refusal the API's message with it
+    vid = subprocess.run(["python3", SYN, "create", tmp], check=True, text=True, stdout=subprocess.PIPE,
+                         cwd=ROOT).stdout.strip()
     print("video", vid, "(FINAL, spends minutes)" if final else "(test)")
     open(os.path.join(OUT, "video.txt"), "w").write(vid)   # for the render log and later version downloads
     film = os.path.join(OUT, "film.mp4")

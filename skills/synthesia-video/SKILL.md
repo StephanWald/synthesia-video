@@ -170,8 +170,9 @@ The API puts **exactly one avatar in each clip**, so a second presenter is a cas
 - **The expert over a picture:** `inset=dict(align="right", scale=0.6)` on an image/video clip renders the
   speaker as a `rectangular` avatar scaled from the bottom corner (`verticalAlign` is fixed to bottom and not
   exposed). At 0.6 bottom-right the figure takes roughly the right 650 px, head at mid-height; leave the right
-  ~800 px of the page empty. That is 16:9. **In other aspect ratios `left` and `right` put the avatar off-screen;
-  only `center` is reliable**, and there is no X/Y field (`reference/api.md`).
+  ~800 px of the page empty. That is 16:9. **In 4:5 `left` and `right` put the avatar off-screen; only
+  `center` works** (a Synthesia bug: 4:5 is laid out on a 16:9 canvas), and there is no X/Y field. A corner
+  presenter in 4:5 is placed in Studio or through a Studio template (`reference/api.md`).
 - **Not `circular`** for this: a circle is fixed to the centre of the frame, `horizontalAlign` with it is a 400
   (`Not applicable when style: circular`), and scale 1.0 fills the full height. It suits a round cut-out over a
   screen recording, nothing beside a card.
@@ -191,7 +192,8 @@ One `POST /v2/videos` with `input: [clip, clip, …]`; each clip is `avatar`, `b
 - **Decide the face at request time.** A `voiceOnly` clip cannot be turned into a visible presenter in Studio
   afterwards; if a clip may need the avatar, send it `rectangular`.
 - Any aspect ratio other than 16:9: presenters at `center` only, and check where the background lands in
-  the first test (a 4:5 card was once seen offset; `reference/api.md`).
+  the first test. In 4:5 a full-frame card needs `backgroundSettings: {"position": {"x": 420, "y": -270}}`
+  (verified workaround for the same bug; `reference/api.md`).
 - Upload host is different: `POST https://upload.api.synthesia.io/v2/assets`, raw body, `Content-Type`
   `video/mp4 | video/webm | image/png | image/jpeg | image/svg+xml`; MP3 goes to `/v2/scriptAudio`
   (async: poll `GET /v2/assets/{id}` before rendering).
