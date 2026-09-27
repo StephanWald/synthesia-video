@@ -58,9 +58,24 @@ this skill. They live in a JSON file outside the plugin, which an update never t
 - `build.py` merges `subs` into `SUBS` (a term in the film's own `SUBS` wins) and `cast` over the stock `CAST`.
 - `rules` are for whoever writes the scripts: **read the house file before writing or editing any script**, and
   follow its rules like the user's own instructions.
+- Two levels: a term only this film uses goes in the film's `SUBS` (`tools/build.py`, and `SCENEPLAN.md` §2);
+  a term the user or their company says in every film goes in the house file.
 - When the user fixes a pronunciation or states a lasting preference ("always say it like this", "our host is
-  …"), offer to add it to the house file rather than only to the film.
-- A worked example for a software company is in the repo's `examples/` folder.
+  …"), offer to add it to the house file rather than only to the film. If there is no house file yet, offer
+  to create `~/.claude/synthesia-house.json` with that first entry; do not create it unasked.
+- A worked example for a software company is in the plugin repo's `examples/` folder.
+
+**Writing a pronunciation** (`[term, alias]` or `[term, alias, ipa]`):
+- The alias is what the voice should read, spelled the way it sounds: `engine X`, `cube control`, `sequel`.
+  Letters are spaced capitals (`B B J`, `A P I`); a word that must stay one word stays one word (`webfor Jay`,
+  not `web for Jay`).
+- Add IPA only when spelling cannot pin it down (a name, a stress, a vowel): `["Louwman", "Lauman", "ˈlaʊmɑn"]`.
+- Matching is whole-word and case-sensitive, longest term first, so `PostgreSQL` is not caught by `SQL`; list
+  each written form that occurs (`BBj`, `BBjServices`).
+- Two terms that must sound different in one breath (e.g. "AI" and "API") both get an entry.
+- Verify by ear: the API cannot tell you how a word sounded. Put new terms in a short clip, render a test,
+  and ask the user to listen at the timestamp. If the user fixes a word in Studio's pronunciation tool, copy
+  the fix back into `SUBS` or the house file, or the next API render loses it.
 
 ## First thing in a new project
 

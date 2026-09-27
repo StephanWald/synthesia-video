@@ -56,22 +56,43 @@ Then start a session in an empty folder and ask for a video ("make a 90-second S
 - Network at export time (the cards load a Google Font).
 - Optional: `pdftoppm` for slide decks, Whisper (e.g. `mlx-whisper`) to recover edits made in Studio.
 
-## Make it yours: the house file
+## Make it yours: pronunciations, presenters, house rules
 
-Pronunciations, your default presenters and your house rules belong to you, not to one film and not to
-the plugin. Put them in `~/.claude/synthesia-house.json` (or `house.json` in a project):
+The easiest way is to just say it: *"always pronounce kubectl as cube control"*, *"our host is Carly with
+the Zola voice"*, *"never say game changer"*. Claude offers to save it where it belongs.
+
+There are two levels:
+
+| level | where | for |
+|---|---|---|
+| this film | `SUBS` and `CAST` in the project's `tools/build.py` | a term or presenter only this film uses |
+| you or your team | a **house file** (JSON) | everything you want in every film |
+
+The build looks for the house file in this order: `$SYNTHESIA_HOUSE`, then `house.json` in the project,
+then `~/.claude/synthesia-house.json`. Share one across a team by committing it as `house.json` or pointing
+`SYNTHESIA_HOUSE` at a shared path. Plugin updates never touch it, so there is no need to fork for any of this.
 
 ```json
 {
   "subs":  [["kubectl", "cube control"], ["nginx", "engine X", "ˈɛndʒɪn ɛks"]],
-  "cast":  {"host": {"avatar": "<avatar id>", "voice": "<voice id>"}},
+  "cast":  {"host":   {"avatar": "<avatar id>", "voice": "<voice id>"},
+            "expert": {"avatar": "<avatar id>", "voice": "<voice id>"}},
   "rules": ["Never say 'game changer'."]
 }
 ```
 
-The build merges it into every film; Claude reads the rules before writing scripts. Plugin updates never
-touch it, so there is no need to fork for vocabulary or presenters. A fuller example is in
-[`examples/software-company-house.json`](examples/software-company-house.json).
+- **`subs`**: `[written, said]` or `[written, said, IPA]`. Spell the alias the way it should sound
+  (`"B B J"` for letters, `"engine X"`); add IPA only for names and stress. Matching is whole-word and
+  case-sensitive; the film's own `SUBS` win over the house file's. The build turns each into Synthesia's
+  `<sub alias="…">` tag, so scripts stay plain prose.
+- **`cast`**: roles to avatar and voice IDs. `host` speaks by default; a clip picks another role with
+  `who="expert"`. IDs come from Studio (the avatar's ⋯ menu → Copy ID) or Synthesia's
+  [avatar](https://docs.synthesia.io/reference/avatars) and [voice](https://docs.synthesia.io/reference/voices)
+  tables. Some IDs in those tables are refused by the API, so confirm a new one with a short test render.
+- **`rules`**: plain sentences Claude reads before writing any script (words to avoid, how to name products).
+
+A fuller example is in [`examples/software-company-house.json`](examples/software-company-house.json).
+Check any new pronunciation by ear: render a short test and listen; the API cannot report how a word sounded.
 
 ## What is inside
 
