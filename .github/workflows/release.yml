@@ -1,0 +1,78 @@
+# On every push to main: validate the manifests, refuse a plugin change without a version bump, and tag +
+# release a new version. Installed copies (Claude Code and Codex) only update when "version" in
+# .claude-plugin/plugin.json changes, so a forgotten bump is the one mistake worth a red mark.
+name: release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate manifests
+        run: |
+          python3 - <<'EOF'
+          import json, re, sys
+          p = json.load(open(".claude-plugin/plugin.json"))
+          m = json.load(open(".claude-plugin/marketplace.json"))
+          errors = []
+          for k in ("name", "version", "description"):
+              if not p.get(k):
+                  errors.append(f"plugin.json: missing {k}")
+          if not re.fullmatch(r"\d+\.\d+\.\d+", p.get("version", "")):
+              errors.append(f"plugin.json: version {p.get('version')!r} is not x.y.z")
+          if not any(e.get("name") == p.get("name") for e in m.get("plugins", [])):
+              errors.append(f"marketplace.json: no plugin entry named {p.get('name')!r}")
+          if errors:
+              sys.exit("\n".join(errors))
+          print("manifests ok:", p["name"], p["version"])
+          EOF
+
+      - name: Tag and release, or check the bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version=$(python3 -c 'import json; print(json.load(open(".claude-plugin/plugin.json"))["version"])')
+          tag="v$version"
+          last=$(git tag -l 'v*' --sort=-v:refname | head -1)
+
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            # Version unchanged: fine, unless the plugin itself changed since that release.
+            changed=$(git diff --name-only "$tag" HEAD -- skills .claude-plugin)
+            if [ -n "$changed" ]; then
+              echo "::error::The plugin changed since $tag but version is still $version. Bump \"version\" in .claude-plugin/plugin.json, or installed copies will not update. Changed:"
+              echo "$changed"
+              exit 1
+            fi
+            echo "$tag exists and the plugin is unchanged since; nothing to release."
+            exit 0
+          fi
+
+          if [ -n "$last" ] && [ "$(printf '%s\n%s\n' "$last" "$tag" | sort -V | tail -1)" != "$tag" ]; then
+            echo "::error::version $version is lower than the latest release $last."
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$tag" -m "synthesia-video $version"
+          git push origin "$tag"
+
+          notes=$(git log --pretty='- %s' ${last:+"$last"..}HEAD)
+          gh release create "$tag" --title "synthesia-video $version" --notes "$notes"
+          echo "released $tag"
