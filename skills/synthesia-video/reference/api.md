@@ -91,6 +91,10 @@ frame); `longBackgroundContentMatchMode` when the picture is longer (extend_cont
 - **Bug reports need the request id.** Error responses carry `Request-Id`; successful ones only the gateway's
   `x-amzn-requestid`. `tools/synthesia.py` reads either, prints it with every error, and prints it on stderr
   for `create`. Report the endpoint, payload, status and body, the request id, and expected vs actual.
+  Support also asks for a short summary at the top and the video ids (the failing one plus any controls). The
+  report goes into Synthesia's support chat; support does not file it on the user's behalf. A bug without an
+  error response is still reported this way: prove it with a control render (e.g. the same clips in 16:9)
+  and a test image with markers (a border and a coloured corner square) so the offset can be measured.
 
 ## Limits not documented
 
