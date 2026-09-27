@@ -72,6 +72,16 @@ frame); `longBackgroundContentMatchMode` when the picture is longer (extend_cont
   `rectangular`, `horizontalAlign` + `scale` scale the avatar from a bottom corner (`verticalAlign` is fixed to
   bottom, not exposed), which is how a small presenter stands in the corner of a picture. One avatar per clip;
   a second avatar in the same frame needs Studio or a template.
+- The avatar has no X/Y: `avatarSettings.position` is a 400 `Unknown field`. Placement is `horizontalAlign` +
+  `scale` only, so exact corner placement is not possible through the API.
+- **Outside 16:9, `left` and `right` misplace the avatar** (reported Sep 2026, 4:5): at scale 0.36, `right` put
+  Carly at x ≈ 1076 of a 1080-wide frame, width 374, almost entirely off-screen; `left` was off-screen the other
+  way; `center` worked. Use `center` in other aspect ratios, or place the presenter in Studio.
+- A `voiceOnly` clip stays voice-only: Studio shows an avatar box, but moving it does not make the presenter
+  appear. If a clip may need the face, render it `rectangular` from the start.
+- **4:5 background offset, one observation, to confirm:** a 1080×1350 uploaded card at `backgroundSettings.position`
+  0,0 appeared in Studio at X −420, Y 270; position X 420, Y −270 put it at X 0, Y 0, 1080×1350. One take in that
+  session had been resized in Studio, so check on an untouched API take before relying on the correction.
 
 ## Limits not documented
 

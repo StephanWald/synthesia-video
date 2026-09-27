@@ -152,6 +152,10 @@ finished film is made outside Synthesia:
 - The ~2 s per clip boundary exists only in the animatic; the finished film is shorter by that much per cut.
 - The speaker reads the same pronunciations as the `SUBS` table; put them in the plan so the reading matches.
 
+The opposite case is just as common: **when the Synthesia-hosted video is the deliverable, it stays native.**
+A local composite (a presenter placed where the API cannot put it, a muxed voice) is then only a timing or
+layout check, never the result; say so when showing it, and deliver the Synthesia render.
+
 ## Two presenters: a host and an expert
 
 The API puts **exactly one avatar in each clip**, so a second presenter is a cast, not a composite:
@@ -166,7 +170,8 @@ The API puts **exactly one avatar in each clip**, so a second presenter is a cas
 - **The expert over a picture:** `inset=dict(align="right", scale=0.6)` on an image/video clip renders the
   speaker as a `rectangular` avatar scaled from the bottom corner (`verticalAlign` is fixed to bottom and not
   exposed). At 0.6 bottom-right the figure takes roughly the right 650 px, head at mid-height; leave the right
-  ~800 px of the page empty.
+  ~800 px of the page empty. That is 16:9. **In other aspect ratios `left` and `right` put the avatar off-screen;
+  only `center` is reliable**, and there is no X/Y field (`reference/api.md`).
 - **Not `circular`** for this: a circle is fixed to the centre of the frame, `horizontalAlign` with it is a 400
   (`Not applicable when style: circular`), and scale 1.0 fills the full height. It suits a round cut-out over a
   screen recording, nothing beside a card.
@@ -183,6 +188,10 @@ One `POST /v2/videos` with `input: [clip, clip, …]`; each clip is `avatar`, `b
   so the picture plays out fully and holds its end frame.
 - Presenter clip: `avatarSettings.style: "rectangular"` (full body) on a background asset (upload a
   solid PNG for a plain colour; no black stock background exists).
+- **Decide the face at request time.** A `voiceOnly` clip cannot be turned into a visible presenter in Studio
+  afterwards; if a clip may need the avatar, send it `rectangular`.
+- Any aspect ratio other than 16:9: presenters at `center` only, and check where the background lands in
+  the first test (a 4:5 card was once seen offset; `reference/api.md`).
 - Upload host is different: `POST https://upload.api.synthesia.io/v2/assets`, raw body, `Content-Type`
   `video/mp4 | video/webm | image/png | image/jpeg | image/svg+xml`; MP3 goes to `/v2/scriptAudio`
   (async: poll `GET /v2/assets/{id}` before rendering).
@@ -204,6 +213,10 @@ One `POST /v2/videos` with `input: [clip, clip, …]`; each clip is `avatar`, `b
   That is how to make a silent card, e.g. an end card.
 - Every clip boundary carries roughly 1.9–2.3 s of silence (lead-in plus tail) that the API cannot trim.
   Nine clips cost about 18 s of air; budget for it and prefer fewer clips.
+- **Budget the pauses first, then measure.** In a short film the air dominates: five clips and 73 words ran
+  43.6 s; cutting two inserted 1.5 s breaks to 0.1 s and the end card's break from 2 s to 1 s gave 38.2 s, the
+  end card 2.9 s, and the boundaries still carried ~2 s each. Count words at the measured rate, add ~2 s per
+  boundary and every break (+1.5 s for a break-only clip), then render and measure.
 - Speech rate depends on the material: a stock voice read 2.8 words/s on long narration but 3.4 words/s on
   short card scripts. Do not time animations to a storyboard's guesses; measure the rendered speech with
   `silencedetect` and pace the picture to it.
