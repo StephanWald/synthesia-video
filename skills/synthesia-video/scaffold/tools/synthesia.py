@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Minimal Synthesia API client. Reads SYNTHESIA_API_KEY from the environment or .env.
 
+  tools/synthesia.py check                         -> checks the key and API access before anything is built
   tools/synthesia.py upload <file>                 -> prints the asset id (mp4, webm, png, jpg, svg, mp3)
   tools/synthesia.py create <request.json>         -> submits a render, prints the video id
   tools/synthesia.py status <video_id>             -> prints the video record
@@ -8,6 +9,8 @@
   tools/synthesia.py videos | templates            -> lists what the account can see
 
 Uses curl, so no Python packages are needed (and a Python without a CA bundle still works).
+A 429 is retried after its RateLimit-Reset; a 5xx or a failed connection is retried too, except on
+POST /v2/videos, where the render may have been created and a retry could start a second one.
 """
 import json, os, subprocess, sys, time
 
@@ -30,13 +33,26 @@ def key():
     return k
 
 
-def curl(url, method="GET", data=None, file=None, ctype="application/json"):
+def curl(url, method="GET", data=None, file=None, ctype="application/json", retry_5xx=True):
+    for attempt in range(4):
+        code, body, reset = curl_once(url, method, data, file, ctype)
+        transient = code == 429 or (retry_5xx and (code == 0 or code >= 500))
+        if not transient or attempt == 3:
+            return code, body
+        # RateLimit-Reset is seconds until the window resets (an epoch time is tolerated too)
+        wait = reset - time.time() if reset > 1e9 else reset
+        wait = min(max(wait, 2 ** (attempt + 1)), 65)
+        print(f"HTTP {code or 'connection failed'}, retrying in {wait:.0f} s", file=sys.stderr, flush=True)
+        time.sleep(wait)
+
+
+def curl_once(url, method, data, file, ctype):
     # the key goes to curl as a config on stdin, never on the command line, where `ps` would show it
     auth = 'header = "Authorization: %s"\n' % key().replace("\\", "\\\\").replace('"', '\\"')
     # The request id traces the call in Synthesia's logs: quote it in any bug report (curl >= 7.84). Errors carry
     # Request-Id; a successful call only the gateway's x-amzn-requestid.
     cmd = ["curl", "-s", "-K", "-", "-X", method, "-w",
-           "\n%{http_code} %header{request-id} %header{x-amzn-requestid}",
+           "\n%{http_code} %header{request-id} %header{x-amzn-requestid} %header{ratelimit-reset}",
            "-H", "Content-Type: " + ctype, url]
     if data is not None:
         cmd += ["--data", json.dumps(data)]
@@ -44,25 +60,36 @@ def curl(url, method="GET", data=None, file=None, ctype="application/json"):
         cmd += ["--data-binary", "@" + file]
     out = subprocess.run(cmd, input=auth, capture_output=True, text=True, timeout=600).stdout
     body, _, tail = out.rpartition("\n")
-    code, _, rid = tail.partition(" ")
+    code, rid, amzn, reset = (tail.split(" ") + ["", "", "", ""])[:4]
     global REQUEST_ID
-    REQUEST_ID = next((r for r in rid.split() if "%" not in r), "")
+    REQUEST_ID = next((r for r in (rid, amzn) if r and "%" not in r), "")   # older curl echoes %header{} as is
+    reset = float(reset) if reset.replace(".", "", 1).isdigit() else 0
+    code = int(code) if code.isdigit() else 0
     try:
-        return int(code), json.loads(body or "{}")
+        return code, json.loads(body or "{}"), reset
     except json.JSONDecodeError:
-        return int(code), {"raw": body[:1000]}
+        return code, {"raw": body[:1000]}, reset
 
 
 REQUEST_ID = ""
 
 
-def fail(code, body):
-    sys.exit(f"HTTP {code} (request-id {REQUEST_ID or '?'}): {json.dumps(body)[:800]}")
+def fail(code, body, hint=""):
+    sys.exit(f"HTTP {code} (request-id {REQUEST_ID or '?'}): {json.dumps(body)[:800]}" + (f"\n{hint}" if hint else ""))
 
 
 def main(argv):
     cmd = argv[1] if len(argv) > 1 else "help"
-    if cmd == "upload":
+    if cmd == "check":
+        code, d = curl(API + "/v2/videos?limit=1")
+        if code == 200:
+            print("key ok: the API answers with this key")
+        elif code in (401, 403):
+            fail(code, d, "the key is wrong or has no API access. It comes from account settings on "
+                          "app.synthesia.io; API access needs a Creator plan or above.")
+        else:
+            fail(code, d)
+    elif cmd == "upload":
         f = argv[2]
         ext = os.path.splitext(f)[1].lower()
         if ext not in TYPES:
@@ -74,7 +101,7 @@ def main(argv):
         print(d["id"])
     elif cmd == "create":
         req = json.load(open(argv[2]))
-        code, d = curl(API + "/v2/videos", "POST", data=req)
+        code, d = curl(API + "/v2/videos", "POST", data=req, retry_5xx=False)
         if code != 201:
             fail(code, d)
         print("request-id", REQUEST_ID or "?", file=sys.stderr)   # stdout stays the bare video id

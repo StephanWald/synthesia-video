@@ -8,6 +8,7 @@ a new film starts from: copy it, replace `SCENES`, `TITLE`, `CALLBACK` and the `
 ## Build
 
 ```
+python3 tools/synthesia.py check # the key works and the plan has API access (run first on a new machine)
 python3 tools/build.py words     # word count and runtime estimate
 python3 tools/build.py script    # the clean text per clip, with its speaker: a recording sheet
 python3 tools/build.py all       # export pages -> out/*.png|mp4, upload changed assets, write out/request.json
@@ -35,6 +36,8 @@ sh tools/verify.sh [file]        # duration, silence map, contact sheet in out/c
 - `stage.js` computes every frame from time; never use CSS animation or transitions (the exporter's clock is
   virtual). Beat times come in as `?beats=`; the list in the page only sets the order.
 - `.env` holds `SYNTHESIA_API_KEY` (git-ignored). Never print it.
+- A failed request or an odd render: `reference/troubleshooting.md` in the skill has the symptom → fix table.
+  `synthesia.py` retries a 429 and a 5xx by itself, but never a 5xx on `create` (it could start a second render).
 - The exporter needs Playwright (`npm install`) and a browser: `$CHROME_PATH`, Chrome in /Applications, or
   `npx playwright install chromium`. `cards.css` loads Barlow Condensed from Google Fonts, so exports need network.
 - Take numbers: `out/take.txt`, stamped into every title. Log each take in `SCENEPLAN.md` §8.

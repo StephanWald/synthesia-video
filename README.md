@@ -17,6 +17,10 @@ film (its source is in [Try the reference film](#try-the-reference-film)), built
 > It runs AI-generated actions against a paid third-party API on your account, so read the
 > [disclaimer](#disclaimer) before use. You need your own Synthesia account with API access (Creator plan or above).
 
+**Video API, not real-time.** This plugin renders videos through Synthesia's video API. For a real-time,
+interactive avatar in a LiveKit voice agent, use Synthesia's own
+[`synthesia-interactive-avatar`](https://github.com/synthesia-ai/skills) skill; the two can be installed side by side.
+
 ## What it does
 
 Ask Claude or Codex for a Synthesia video and the skill:
@@ -146,7 +150,8 @@ Check any new pronunciation by ear: render a short test and listen; the API cann
 ```
 skills/synthesia-video/
   SKILL.md            what the agent knows: the workflow, the API's shape, every gotcha found so far
-  reference/          api.md (endpoints, limits, what the API cannot do), verifying.md (ffmpeg recipes)
+  reference/          api.md (endpoints, limits, what the API cannot do), verifying.md (ffmpeg recipes),
+                      troubleshooting.md (symptom → cause → fix, first-run errors first)
   scaffold/           the reference film = the project template
     tools/build.py      scene table, cast, pronunciations; words, script, export, upload, render, mux, assemble
     tools/sync.py       cuts, voice, beats: the voice-sync loop

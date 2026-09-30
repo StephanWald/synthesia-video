@@ -18,6 +18,7 @@ This plan is filled in for the reference film: seven clips, one lesson each, no 
 | Voice | stock TTS. For a film that needs a real person: the user's recording, read from `build.py script`, set as `audio=`, joined by `mux` |
 | What Synthesia is for | here: the render is the film, with the animated clip re-synced and spliced by `assemble`. With the user's own voice: the render is only the animatic |
 | Test renders | `test: true` always; final render only on the user's explicit word |
+| Disclosure | none needed: stock avatars and voices, no real person's likeness, and r1 says it is a Synthesia build. With a personal avatar, a voice clone or a named person: say where the film states it is AI-generated |
 
 **Budget rule:** each clip boundary costs ~1.9–2.3 s of silence; stock voices read 2.8 (long narration) to 3.4
 (short card scripts) words a second. Runtime ≈ words ÷ 2.8 + 2.2 × (clips − 1) + holds. `build.py words`.

@@ -1,6 +1,6 @@
 ---
 name: synthesia-video
-description: Build Synthesia avatar videos from a scene table with the Synthesia API. Use when the user mentions Synthesia, an avatar video, api.synthesia.io, a SYNTHESIA_API_KEY, or wants to script, render, or iterate on a presenter video. Scaffolds a working project (a seven-clip reference film), knows the API's shape and gotchas, and runs a Python build that exports HTML graphics, uploads assets, renders free test videos, syncs animations to the measured voice, casts a second presenter, and joins pictures to a real person's recorded voice when the render is only an animatic.
+description: Build Synthesia avatar videos from a scene table with the Synthesia API. Use when the user mentions Synthesia, an avatar video, api.synthesia.io, a SYNTHESIA_API_KEY, or wants to script, render, or iterate on a presenter video. Scaffolds a working project (a seven-clip reference film), knows the API's shape and gotchas, and runs a Python build that exports HTML graphics, uploads assets, renders free test videos, syncs animations to the measured voice, casts a second presenter, and joins pictures to a real person's recorded voice when the render is only an animatic. Not for real-time, interactive or LiveKit avatars: that is Synthesia's own skill, synthesia-interactive-avatar.
 license: MIT
 ---
 
@@ -9,6 +9,33 @@ license: MIT
 A Synthesia video is best treated as a **build**, not a document: a scene table in Python is the
 source of truth, graphics are exported to MP4/PNG, assets are uploaded once (cached by hash), and
 every render is a fresh, immutable video. Studio is the preview and hand-tweak surface, not the source.
+
+This skill covers the video API (`api.synthesia.io/v2/videos`). A real-time avatar in a LiveKit agent is a
+different product with its own skill, Synthesia's `synthesia-interactive-avatar` (github.com/synthesia-ai/skills).
+
+## Constraints: tell the user the ones that matter before building
+
+- API access needs a **Creator plan or above**; the key belongs to the account (app.synthesia.io settings).
+- **Test renders are free and watermarked; a final render spends video minutes**, which cannot be undone.
+  Final only on an explicit ask. Docs cap test videos at 30 a day.
+- **One avatar per clip, no X/Y, no text elements, no word triggers**: the picture is one uploaded asset per clip.
+- The TTS voice is not the same twice, and uploaded voice (`scriptAudio`) is refused on some plans.
+- EXPRESS-2 avatars (e.g. a personal avatar) were refused; render stock, swap in Studio.
+- 4:5 is laid out wrongly (a verified Synthesia bug): presenters at `center` only. Expect the same of the
+  other non-16:9 ratios (untested) and check the first test render.
+
+## Where to start
+
+Look at the project and the conversation before asking anything; ask only what they do not answer, as one list.
+
+- **A render or request failed, or a render looks wrong** → match it in `reference/troubleshooting.md` before
+  changing code.
+- **`tools/build.py` is already in the project** → it is an existing film: read its `SCENEPLAN.md` and agent
+  file, and carry on in the working loop. Never re-copy the scaffold over it.
+- **No `.env` with `SYNTHESIA_API_KEY`** → ask the user to create it; once `tools/` is in place, run
+  `python3 tools/synthesia.py check` before building anything.
+- **A real person's voice or face is the point of the film** → the render is only the animatic (below).
+- **Otherwise, a new film** → "First thing in a new project".
 
 ## The scaffold is a working reference film
 
@@ -85,7 +112,10 @@ this skill. They live in a JSON file outside the plugin, which an update never t
    with their tunables, external material with expected paths and placeholders, decisions not to reopen, the
    verification checklist and the render log. Most first-render surprises come from fields this plan makes
    mandatory. **Settle first whose voice and face the film carries** (see "Synthesia as the animatic" below):
-   it decides whether a render is the deliverable or a preview.
+   it decides whether a render is the deliverable or a preview. Settle with it the **disclosure**: whether and
+   where the film says it is AI-generated (a line in the script, the end card, the video description). It is
+   the user's call, but ask it whenever a real person's likeness or voice is used (a personal avatar, a voice
+   clone, a stock avatar speaking as a named person), and write the answer in the plan.
 1. Copy the whole `scaffold/` folder into the project root, then replace the reference film's content:
    `SCENES`, `TITLE` and `CALLBACK` in `tools/build.py`, the `r*.html` pages, `SCENEPLAN.md` and `CLAUDE.md`.
    Keep `tools/` (`build.py`: `words`, `script`, `export`, `upload`, `request`, `all`, `render`, `mux`,
@@ -94,7 +124,9 @@ this skill. They live in a JSON file outside the plugin, which an update never t
    and `package.json` only if nothing is HTML (e.g. a PDF deck). Start with an empty `out/`; run `npm install`.
 2. The API key lives in `.env` as `SYNTHESIA_API_KEY=…` (git-ignored). Never print it or commit it.
    If `.env` is missing, ask the user to create it; the key comes from account settings on app.synthesia.io
-   and belongs to the account, not the workspace. API access needs a Creator plan or above.
+   and belongs to the account, not the workspace. API access needs a Creator plan or above. Then run
+   `python3 tools/synthesia.py check`: a wrong key or a plan without API access fails here, in a second,
+   instead of after a long export.
 3. Presenters: keep the default cast, take the house file's, or ask for **avatar and voice IDs** (Studio:
    three-dot menu on the avatar, "Copy ID"), or look them up in the docs tables
    (`https://docs.synthesia.io/reference/avatars.md` and `/voices.md`: the `.md` form is the raw table; grep by
@@ -298,6 +330,8 @@ The API has no deck import. A slide is a still: one PNG per slide, uploaded as a
 
 ## Reference
 
+- `reference/troubleshooting.md` — symptom → cause → fix, first-run errors first. Read it whenever an
+  error or an odd render appears.
 - `reference/api.md` — endpoints, fields, limits, verified against the OpenAPI spec (Sep 2026); what the API
   cannot put on screen and the template route around it.
 - `reference/verifying.md` — ffmpeg recipes for checking a render without watching it.
